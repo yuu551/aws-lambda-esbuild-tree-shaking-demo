@@ -1,0 +1,11 @@
+{
+  "name": "shared-dependencies",
+  "version": "1.0.0",
+  "description": "Shared dependencies for Lambda functions",
+  "private": true,
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "date-fns": "^3.0.0",
+    "dynamoose": "^3.2.0"
+  }
+}
