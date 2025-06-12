@@ -106,16 +106,6 @@ export const handler = async (event: any) => {
 - `billing-service.ts` と必要な依存関係のみバンドルされる
 - 結果: 8KB の軽量な関数に
 
-### どちらを選ぶべきか？
-
-| 状況 | 推奨パターン | 理由 |
-|------|------------|------|
-| 大規模プロジェクト（10+ 関数） | レイヤー使用 | 共有効率が高い |
-| 小規模プロジェクト（〜5 関数） | レイヤーなし | 管理がシンプル |
-| 頻繁なデプロイ | レイヤー使用 | デプロイ時間短縮 |
-| 関数ごとに依存関係が異なる | レイヤーなし | 柔軟性が高い |
-| マイクロサービス | レイヤーなし | 独立性を保てる |
-
 ## 📈 実際のデプロイ結果と詳細分析
 
 ### デプロイされる Lambda 関数一覧
@@ -128,7 +118,7 @@ export const handler = async (event: any) => {
 | `sample-function-b-with-layer` | **1,138 bytes** | 512 MB | 通知機能付き（レイヤー使用） |
 | `sample-function-a-no-optimization` | **64,802 bytes** | 512 MB | 最適化なし（ベースライン） |
 | `sample-function-a-full-bundle` | **64,802 bytes** | 512 MB | 全てバンドル（最悪ケース） |
-| `sample-function-a-without-aws-sdk-exclusion` | **TBD** | 512 MB | @aws-sdk/* 除外なし（検証用） |
+| `sample-function-a-without-aws-sdk-exclusion` | **1,087 bytes** | 512 MB | @aws-sdk/* 除外なし（検証用） |
 
 ### 🎯 Tree Shaking の依存性分離効果
 
@@ -196,14 +186,13 @@ import { get } from 'lodash';       // 使用する関数のみ含まれる
 - 使っていない notification-service も含まれる可能性
 ```
 
-### 🚀 パフォーマンスへの影響
+### 🔍 検証結果: @aws-sdk/* の明示的除外について
 
-| メトリクス | レイヤー使用 | Tree Shaking のみ | 最適化なし |
-|-----------|------------|----------------|-----------|
-| コールドスタート | 最速 (〜200ms) | 速い (〜250ms) | 遅い (〜400ms) |
-| デプロイ時間 | 10秒 | 15秒 | 30秒 |
-| メモリ使用量 | 最小 | 小 | 大 |
-| 管理の複雑さ | 中 | 低 | 最低 |
+**実験結果**：
+- `--packages: external`のみ：**1,087 bytes**
+- `--packages: external` + `externalModules: ['@aws-sdk/*']`：**1,087 bytes**
+
+**結論**：`--packages: external`だけで AWS SDK も自動的に除外される。明示的な`@aws-sdk/*`指定は不要だが、意図を明確にするために記載することが多い。
 
 ### 🔧 実装のポイント
 
