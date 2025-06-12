@@ -192,7 +192,7 @@ import { get } from 'lodash';       // 使用する関数のみ含まれる
 - `--packages: external`のみ：**1,087 bytes**
 - `--packages: external` + `externalModules: ['@aws-sdk/*']`：**1,087 bytes**
 
-**結論**：`--packages: external`だけで AWS SDK も自動的に除外される。明示的な`@aws-sdk/*`指定は不要だが、意図を明確にするために記載することが多い。
+**結論**：`--packages: external`だけで AWS SDK も自動的に除外される。
 
 ### 🔧 実装のポイント
 
@@ -281,7 +281,7 @@ npm run cleanup
 
 ## 🛠 プロジェクト構成
 あくまでサンプルコードです。
-何も具体的になビジネスロジックなどはありません。
+何も具体的なビジネスロジックなどはありません。
 
 ```
 ├── src/
