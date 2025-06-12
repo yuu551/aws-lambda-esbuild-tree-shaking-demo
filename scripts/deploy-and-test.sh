@@ -173,6 +173,9 @@ main() {
     echo "  ✓ Pattern 1: --packages external (all external modules in layer)"
     echo "  ✓ Pattern 2: Specific external modules only"
     echo "  ✓ Pattern 3: Tree shaking optimization (no layer)"
+    echo "  ✓ Pattern 4: No optimization (baseline)"
+    echo "  ✓ Pattern 5: Full bundle (worst case)"
+    echo "  ✓ Pattern 6: WITHOUT explicit @aws-sdk/* exclusion (validation)"
     echo "  ✓ Performance comparison between patterns"
     echo
     

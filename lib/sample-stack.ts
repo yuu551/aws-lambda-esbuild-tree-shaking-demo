@@ -200,6 +200,31 @@ export class SampleStack extends cdk.Stack {
       },
     });
 
+    // パターン6: externalModulesで@aws-sdk/*を明示しない（比較用）
+    const functionAWithoutAwsSdkExclusion = new NodejsFunction(this, 'FunctionAWithoutAwsSdkExclusion', {
+      functionName: 'sample-function-a-without-aws-sdk-exclusion',
+      entry: path.join(__dirname, '../src/lambda/function-a/index.ts'),
+      runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: lambda.Architecture.ARM_64,
+      environment: commonEnv,
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      bundling: {
+        esbuildArgs: {
+          '--packages': 'external',      // 全ての外部パッケージを除外
+          '--tree-shaking': 'true',
+          '--minify': true,
+          '--target': 'node20',
+          '--platform': 'node',
+        },
+        // 明示的にAWS SDKを除外しない - これによりバンドルサイズの違いを確認
+        externalModules: [
+          // '@aws-sdk/*', // ←これをコメントアウト
+          // 'aws-sdk',
+        ],
+      },
+    });
+
     // 権限の付与
     usersTable.grantReadWriteData(functionAWithAllExternal);
     usersTable.grantReadWriteData(functionAWithSpecificExternal);
@@ -207,11 +232,13 @@ export class SampleStack extends cdk.Stack {
     usersTable.grantReadWriteData(functionBWithLayer);
     usersTable.grantReadWriteData(functionANoOptimization);
     usersTable.grantReadWriteData(functionAFullBundle);
+    usersTable.grantReadWriteData(functionAWithoutAwsSdkExclusion);
     
     logsTable.grantWriteData(functionAWithAllExternal);
     logsTable.grantWriteData(functionAWithSpecificExternal);
     logsTable.grantWriteData(functionANoOptimization);
     logsTable.grantWriteData(functionAFullBundle);
+    logsTable.grantWriteData(functionAWithoutAwsSdkExclusion);
     
     notificationTopic.grantPublish(functionBWithLayer);
 
@@ -225,6 +252,7 @@ export class SampleStack extends cdk.Stack {
           withNotification: 'Function B with notification service',
           noOptimization: 'Function A with no optimization (baseline comparison)',
           fullBundle: 'Function A with full bundle (worst case scenario)',
+          withoutAwsSdkExclusion: 'Function A WITHOUT explicit @aws-sdk/* exclusion (validation test)',
         },
         expectedSizes: {
           allExternal: '~1KB (with layer)',
@@ -233,6 +261,7 @@ export class SampleStack extends cdk.Stack {
           withNotification: '~1KB (with layer)',
           noOptimization: '~15-20KB (no optimization)',
           fullBundle: '~25-30KB (everything bundled)',
+          withoutAwsSdkExclusion: '~1KB if --packages:external works, or LARGE if AWS SDK bundled',
         },
         notes: [
           'Run "npm run build-layer" before deploying to create the shared layer',

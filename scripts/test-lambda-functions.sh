@@ -156,6 +156,7 @@ main() {
         "sample-function-b-with-layer"
         "sample-function-a-no-optimization"
         "sample-function-a-full-bundle"
+        "sample-function-a-without-aws-sdk-exclusion"
     )
     
     for func in "${functions[@]}"; do
@@ -173,6 +174,7 @@ main() {
     test_function_performance "sample-function-b-with-layer" "$test_payload_function_b" 3
     test_function_performance "sample-function-a-no-optimization" "$test_payload_function_a" 3
     test_function_performance "sample-function-a-full-bundle" "$test_payload_function_a" 3
+    test_function_performance "sample-function-a-without-aws-sdk-exclusion" "$test_payload_function_a" 3
     
     echo "=== Test Results Summary ==="
     
